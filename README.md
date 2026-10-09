@@ -37,8 +37,15 @@ capteurs par colis, notifications de changement de statut et tableau de bord.
 
 ## Étape 2 — Installer l'intégration
 
-Copiez le dossier `custom_components/ship24` dans `/config/custom_components/`
-de votre instance HAOS, pour obtenir :
+Le plus simple : installer directement depuis GitHub via **HACS** :
+
+1. **HACS → ⋮ (en haut à droite) → Dépôts personnalisés**
+2. Ajouter `https://github.com/JykaWeston/parcels`, catégorie **Intégration**
+3. HACS → **Explorer et télécharger** → chercher **Ship24 Parcels** → Télécharger
+4. Redémarrer Home Assistant
+
+Ou manuellement : copiez le dossier `custom_components/ship24` dans
+`/config/custom_components/` de votre instance HAOS, pour obtenir :
 
 ```
 /config/custom_components/ship24/
@@ -58,10 +65,6 @@ Selon votre moyen d'accès au système de fichiers :
   ```bash
   scp -r custom_components/ship24 root@homeassistant.local:/config/custom_components/
   ```
-
-Autre option : publier ce dépôt sur GitHub et l'ajouter dans
-**HACS → ⋮ → Dépôts personnalisés** (catégorie *Intégration*), puis installer
-« Ship24 Parcels » — le `hacs.json` fourni est prêt pour ça.
 
 Redémarrez Home Assistant après la copie.
 
