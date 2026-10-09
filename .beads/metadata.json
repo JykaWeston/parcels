@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "Parcels",
+  "project_id": "334916fd-5e4c-4936-9f3d-960c62abe19a"
+}
