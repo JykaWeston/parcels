@@ -1,0 +1,100 @@
+# Tableau de bord « Colis » — 100 % natif (aucune carte personnalisée requise).
+#
+# Installation :
+#   1. Copier ce fichier sur la machine HA (ex: /config/lovelace/parcels-dashboard.yaml
+#      via Samba, File editor ou SSH).
+#   2. Paramètres → Tableaux de bord → Ajouter un tableau de bord →
+#      « Avec un fichier YAML » → URL: /lovelace/parcels-dashboard.yaml,
+#      Titre: Colis, Icône: mdi:package-variant-closed.
+#
+# La vue utilise des templates qui listent automatiquement tous les colis de
+# l'intégration ship24 (filtre sur l'attribut tracking_number) : aucun lien
+# vers une entité en dur, les nouveaux colis apparaissent seuls.
+title: Colis
+views:
+  - title: Colis
+    icon: mdi:package-variant-closed
+    type: sections
+    max_columns: 2
+    sections:
+      # ── Résumé du mois ────────────────────────────────────────────────
+      - type: grid
+        cards:
+          - type: markdown
+            content: >
+              {% set parcels = states.sensor
+                | selectattr('attributes.tracking_number', 'defined') | list %}
+
+              {% set active = parcels | selectattr('state', 'in',
+                ['info_received', 'in_transit', 'out_for_delivery',
+                 'failed_attempt', 'available_for_pickup', 'exception']) | list %}
+
+              {% set delivered = parcels | selectattr('state', 'eq', 'delivered') | list %}
+
+              # 📦 Colis
+
+              **{{ active | count }}** en cours · **{{ delivered | count }}** livré(s)
+
+              {% for s in active %}
+
+              {% set icon = {
+                'info_received': '📄', 'in_transit': '🚚',
+                'out_for_delivery': '🛵', 'failed_attempt': '⚠️',
+                'available_for_pickup': '🏪', 'exception': '❗'}.get(s.state, '📦') %}
+              {{ icon }} **{{ s.name | regex_replace(' (statut|status)$', '') }}**
+              — {{ state_attr(s.entity_id, 'status_category') or s.state }}
+              {% if s.attributes.get('courier') %}({{ s.attributes.courier }}){% endif %}
+
+              {% endfor %}
+
+      # ── Détail par colis ──────────────────────────────────────────────
+      - type: grid
+        cards:
+          - type: markdown
+            content: >
+              {% set parcels = states.sensor
+                | selectattr('attributes.tracking_number', 'defined')
+                | sort(attribute='name') %}
+              {% set labels = {
+                'info_received': '📄 Informations reçues',
+                'in_transit': '🚚 En transit',
+                'out_for_delivery': '🛵 En cours de livraison',
+                'failed_attempt': '⚠️ Échec de livraison',
+                'available_for_pickup': '🏪 Disponible en point relais',
+                'exception': '❗ Incident',
+                'delivered': '✅ Livré'} %}
+
+              {% for s in parcels %}
+
+              ## {{ s.name | regex_replace(' (statut|status)$', '') }}
+
+              **{{ labels.get(s.state, s.state) }}**
+
+              {% if s.attributes.get('courier') %}Transporteur : {{ s.attributes.courier }}
+              {% endif %}
+              {% if s.attributes.get('destination_country') %}Destination : {{ s.attributes.destination_country }}
+              {% endif %}
+              {% if s.attributes.get('tracking_url') %}[Suivre sur Ship24]({{ s.attributes.tracking_url }}){% endif %}
+
+              {% endfor %}
+
+      # ── Livraisons attendues ──────────────────────────────────────────
+      - type: grid
+        cards:
+          - type: markdown
+            title: Livraison estimée
+            content: >
+              {% set delivery_entities = states.sensor
+                | selectattr('entity_id', 'search', 'livraison_estimee|estimated_delivery')
+                | list %}
+
+              {% set ns = namespace(found=false) %}
+              {% for d in delivery_entities | sort(attribute='state') %}
+              {% if d.state not in ['unknown', 'unavailable'] %}
+              {% set ns.found = true %}
+              - **{{ d.name | regex_replace(' (livraison estimée|estimated delivery)$', '') }}** :
+                {{ as_timestamp(d.state) | timestamp_custom('%a %d %b %H:%M') }}
+              {% endif %}
+              {% endfor %}
+
+              {% if not ns.found %}Aucune date estimée pour le moment.{% endif %}

@@ -1,0 +1,78 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Saisissez votre clé API Ship24 (dashboard.ship24.com → API → Manage API keys).",
+        "data": {
+          "api_key": "Clé API"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossible de contacter Ship24",
+      "invalid_auth": "Authentification invalide : vérifiez votre clé API"
+    },
+    "abort": {
+      "already_configured": "Le compte Ship24 est déjà configuré"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "add_tracking_number": "Numéro de suivi à ajouter",
+          "add_label": "Libellé du colis à ajouter",
+          "remove_parcels": "Colis à supprimer",
+          "update_interval": "Intervalle de mise à jour (minutes)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossible de contacter Ship24",
+      "duplicate_parcel": "Ce numéro de suivi est déjà suivi",
+      "invalid_auth": "Clé API invalide"
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Rafraîchir",
+      "description": "Force la mise à jour immédiate de tous les colis Ship24."
+    },
+    "add_parcel": {
+      "name": "Ajouter un colis",
+      "description": "Ajoute un colis à suivre. La première recherche peut prendre jusqu'à une minute.",
+      "fields": {
+        "tracking_number": {
+          "name": "Numéro de suivi",
+          "description": "Le numéro de suivi du colis."
+        },
+        "label": {
+          "name": "Libellé",
+          "description": "Nom convivial du colis."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Statut",
+        "state": {
+          "info_received": "Informations reçues",
+          "in_transit": "En transit",
+          "out_for_delivery": "En cours de livraison",
+          "failed_attempt": "Échec de livraison",
+          "available_for_pickup": "Disponible en point relais",
+          "exception": "Incident",
+          "delivered": "Livré"
+        }
+      },
+      "estimated_delivery": {
+        "name": "Livraison estimée"
+      },
+      "last_event": {
+        "name": "Dernier événement"
+      }
+    }
+  }
+}

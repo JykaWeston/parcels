@@ -125,3 +125,43 @@ bd prime                # Refresh Beads context
 
 **Architecture in one line:** issues live in a local Dolt DB; sync uses `refs/dolt/data` on your git remote; `.beads/issues.jsonl` is a passive export. See https://github.com/gastownhall/beads/blob/main/docs/SYNC_CONCEPTS.md for details and anti-patterns.
 <!-- END BEADS CODEX SETUP -->
+
+## Build & Test
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m pytest        # suite complète (client API, parsing, intégration HA)
+.venv/bin/python scripts/test_api.py apik_... [numéro]   # test contre l'API Ship24 réelle
+```
+
+L'intégration n'a aucune dépendance externe (aiohttp est fourni par Home
+Assistant). Les tests API s'exécutent contre un serveur HTTP local réel
+(`aioresponses` est incompatible Python 3.14 — ne pas le réintroduire).
+
+## Architecture Overview
+
+Custom integration Home Assistant `custom_components/ship24` (domaine
+`ship24`, plan cloud_polling) :
+
+- `api.py` / `models.py` / `exceptions.py` — client Ship24 v2 **sans aucune
+  dépendance HA** (base `https://api.ship24.com`, chemins `/public/v1/...`,
+  auth `Bearer apik_...`) ; parsing en dataclasses `TrackingData`
+- `coordinator.py` — `DataUpdateCoordinator` : poll
+  `GET /trackers/{id}/results` par colis, événement bus
+  `ship24_status_changed` à chaque changement de statut, désabonnement auto
+  7 j après livraison
+- `config_flow.py` — clé API (unique_id = domaine) + OptionsFlow de gestion
+  des colis (ajout via `POST /trackers/track` idempotent, suppression)
+- `sensor.py` / `entity.py` — un device par colis, 3 capteurs (statut,
+  livraison estimée timestamp, dernier événement)
+- Liste des colis = `entry.options["parcels"]` (dicts `tracking_number`,
+  `label`, `tracker_id`) ; services `ship24.refresh` / `ship24.add_parcel`
+- Livrables HA : `lovelace/parcels-dashboard.yaml`, `automations/notifications.yaml`
+
+## Conventions & Patterns
+
+- Code et commentaires en anglais dans `custom_components/`, UI et
+  traductions en français (`translations/fr.json`) + anglais.
+- Ne pas consommer le quota Ship24 (10 colis/mois en plan gratuit) dans les
+  tests : mocker `Ship24ApiClient`, ne jamais appeler l'API réelle dans pytest.

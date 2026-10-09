@@ -1,0 +1,12 @@
+{
+  "domain": "ship24",
+  "name": "Ship24",
+  "codeowners": ["@dlbv"],
+  "config_flow": true,
+  "documentation": "https://github.com/JykaWeston/parcels",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/JykaWeston/parcels/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}

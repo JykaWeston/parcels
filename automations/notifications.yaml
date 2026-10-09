@@ -1,0 +1,58 @@
+# Notifications de colis — à fusionner dans /config/automations.yaml
+# (ou à recopier via Paramètres → Automatisations → nouvelle automatisation,
+# mode YAML).
+#
+# Ces automatisations s'appuient sur l'événement `ship24_status_changed`
+# émis par l'intégration à chaque changement de statut d'un colis :
+# elles couvrent automatiquement tous les colis, actuels et futurs.
+#
+# Prérequis : remplacer `notify.mobile_app_mon_telephone` par votre service
+# de notification (voir Paramètres → Applications → votre téléphone, ou
+# notify.mobile_app_* dans les Outils de développement → Actions).
+
+automation:
+  # ── Notification à chaque changement de statut ──────────────────────
+  - id: ship24_status_change
+    alias: "Colis — changement de statut"
+    mode: single
+    trigger:
+      - platform: event
+        event_type: ship24_status_changed
+    condition:
+      # Pas de notification pour les statuts « techniques » peu utiles.
+      - condition: template
+        value_template: >
+          {{ trigger.event.data.new_status not in ['info_received'] }}
+    action:
+      - action: notify.mobile_app_mon_telephone
+        data:
+          title: >
+            📦 {{ trigger.event.data.label }} —
+            {{ trigger.event.data.new_status | replace('_', ' ') }}
+          message: >
+            {% set labels = {
+              'in_transit': 'Le colis est en transit',
+              'out_for_delivery': 'Le colis arrive aujourd\u2019hui !',
+              'failed_attempt': 'Échec de livraison, voir le suivi',
+              'available_for_pickup': 'Disponible en point relais',
+              'exception': 'Incident sur le colis'} %}
+            {{ labels.get(trigger.event.data.new_status,
+                          'Statut : ' ~ trigger.event.data.new_status) }}
+            {% if trigger.event.data.last_event %}— {{ trigger.event.data.last_event }}{% endif %}
+  # ── Notification spéciale « livré » ────────────────────────────────
+  - id: ship24_delivered
+    alias: "Colis — livré 🎉"
+    mode: single
+    trigger:
+      - platform: event
+        event_type: ship24_status_changed
+        event_data:
+          new_status: delivered
+    action:
+      - action: notify.mobile_app_mon_telephone
+        data:
+          title: "🎉 {{ trigger.event.data.label }} livré !"
+          message: >
+            Le colis {{ trigger.event.data.tracking_number }} a été livré.
+            Pensez à le retirer de la liste dans
+            Paramètres → Appareils → Ship24 → Configurer.

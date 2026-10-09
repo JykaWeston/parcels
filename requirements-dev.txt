@@ -1,0 +1,8 @@
+# Dépendances de développement et de test (l'intégration elle-même n'a pas
+# de dépendances : elle n'utilise qu'aiohttp, embarqué dans Home Assistant).
+pytest
+pytest-asyncio
+pytest-socket
+aiohttp
+homeassistant
+pytest-homeassistant-custom-component

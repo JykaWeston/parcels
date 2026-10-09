@@ -1,0 +1,25 @@
+refresh:
+  name: Refresh
+  description: Force an immediate refresh of all Ship24 parcels.
+  fields: {}
+
+add_parcel:
+  name: Add parcel
+  description: >-
+    Add a parcel to track. The first lookup may take up to a minute while
+    couriers are queried by Ship24.
+  fields:
+    tracking_number:
+      name: Tracking number
+      description: The parcel tracking number (e.g. 9400115901047177598206).
+      required: true
+      example: "9400115901047177598206"
+      selector:
+        text:
+    label:
+      name: Label
+      description: Friendly name for the parcel (defaults to the tracking number).
+      required: false
+      example: "Clavier mécanique"
+      selector:
+        text:

@@ -1,0 +1,78 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Enter your Ship24 API key (dashboard.ship24.com → API → Manage API keys).",
+        "data": {
+          "api_key": "API key"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Ship24",
+      "invalid_auth": "Invalid authentication: check your API key"
+    },
+    "abort": {
+      "already_configured": "The Ship24 account is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "add_tracking_number": "Tracking number to add",
+          "add_label": "Label of the parcel to add",
+          "remove_parcels": "Parcels to remove",
+          "update_interval": "Update interval (minutes)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Ship24",
+      "duplicate_parcel": "This tracking number is already tracked",
+      "invalid_auth": "Invalid API key"
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Refresh",
+      "description": "Force an immediate refresh of all Ship24 parcels."
+    },
+    "add_parcel": {
+      "name": "Add parcel",
+      "description": "Add a parcel to track. First lookup may take up to a minute.",
+      "fields": {
+        "tracking_number": {
+          "name": "Tracking number",
+          "description": "The parcel tracking number."
+        },
+        "label": {
+          "name": "Label",
+          "description": "Friendly name for the parcel."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "info_received": "Info received",
+          "in_transit": "In transit",
+          "out_for_delivery": "Out for delivery",
+          "failed_attempt": "Failed attempt",
+          "available_for_pickup": "Available for pickup",
+          "exception": "Exception",
+          "delivered": "Delivered"
+        }
+      },
+      "estimated_delivery": {
+        "name": "Estimated delivery"
+      },
+      "last_event": {
+        "name": "Last event"
+      }
+    }
+  }
+}
